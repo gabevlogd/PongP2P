@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8398b9097d17644a814c4d60f5d0c00, type: 3}
+  m_Name: Audio Settings
+  m_EditorClassIdentifier: 
+  _mute: 0
+  _subtitleOn: 0
+  _masterVolume: 1
+  _musicVolume: 1
+  _sfxVolume: 1
+  _voiceVolume: 1
+  _audioLanguage: 0
+  _subtitlesLanguage: 0

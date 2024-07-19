@@ -10,7 +10,6 @@ public class LobbyManager : MonoBehaviour
     private PongNetworkManager _networkManager;
 
     private const string _hostAddressKey = "HostAddress";
-    private const string _lobbyNameKey = "LobbyName";
 
     private Callback<LobbyCreated_t> _lobbyCreated;
     private Callback<LobbyEnter_t> _gameLobbyEnter;

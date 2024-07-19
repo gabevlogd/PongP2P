@@ -23,19 +23,19 @@ public class MatchmakingMenu : MonoBehaviour
     private void OnEnable()
     {
         _backButton.interactable = true;
-        _backButton.onClick.AddListener(StopMatchmaking);
+        _backButton.onClick.AddListener(LeaveMatchmaking);
         PongPlayer.OnUpdatePlayerInfo += UpdateMatchmakingStatus;
         PongNetworkManager.OnServerDisconnected += UpdateMatchmakingStatus;
     }
 
     private void OnDisable()
     {
-        _backButton.onClick.RemoveListener(StopMatchmaking);
+        _backButton.onClick.RemoveListener(LeaveMatchmaking);
         PongPlayer.OnUpdatePlayerInfo -= UpdateMatchmakingStatus;
         PongNetworkManager.OnServerDisconnected -= UpdateMatchmakingStatus;
     }
 
-    private void StopMatchmaking()
+    private void LeaveMatchmaking()
     {
         if (NetworkServer.active && NetworkClient.isConnected)
             _networkManager.StopHost();

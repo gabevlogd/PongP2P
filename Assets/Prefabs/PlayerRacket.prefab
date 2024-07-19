@@ -176,7 +176,7 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  _speed: 1000
+  _speed: 1500
 --- !u!1 &8318383641593659560
 GameObject:
   m_ObjectHideFlags: 0

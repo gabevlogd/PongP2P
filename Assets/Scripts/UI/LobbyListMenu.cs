@@ -25,21 +25,21 @@ public class LobbyListMenu : MonoBehaviour
     {
         PongNetworkManager.OnLobbyListFound += OnLobbyListFound;
         PongNetworkManager.OnLobbyListNotFound += OnLobbyListNotFound;
-        _refreshListButton.onClick.AddListener(RefreshListClick);
+        _refreshListButton.onClick.AddListener(RefreshLobbyList);
     }
     private void OnDisable()
     {
         PongNetworkManager.OnLobbyListFound -= OnLobbyListFound;
         PongNetworkManager.OnLobbyListNotFound -= OnLobbyListNotFound;
-        _refreshListButton.onClick.RemoveListener(RefreshListClick);
-        DeleteLobbyList();
+        _refreshListButton.onClick.RemoveListener(RefreshLobbyList);
+        CleareLobbyList();
     }
 
     private void OnLobbyListFound(List<LobbyData> lobbyDataList)
     {
-        DeleteLobbyList();
+        CleareLobbyList();
         _noLobbyMessage.gameObject.SetActive(false);
-        InitializeLobbyList(lobbyDataList);
+        PopulateLobbyList(lobbyDataList);
     }
 
     private void OnLobbyListNotFound()
@@ -47,7 +47,7 @@ public class LobbyListMenu : MonoBehaviour
         _noLobbyMessage.gameObject.SetActive(true);
     }
 
-    private void InitializeLobbyList(List<LobbyData> lobbyDataList)
+    private void PopulateLobbyList(List<LobbyData> lobbyDataList)
     {
         foreach (LobbyData lobbyData in lobbyDataList)
         {
@@ -56,7 +56,7 @@ public class LobbyListMenu : MonoBehaviour
         }
     }
 
-    private void DeleteLobbyList()
+    private void CleareLobbyList()
     {
         //Debug.Log("DeleteLobbyList");
         List<Transform> children = new List<Transform>();
@@ -70,5 +70,5 @@ public class LobbyListMenu : MonoBehaviour
         }
     }
 
-    private void RefreshListClick() => _networkManager.SearchLobbyList();
+    private void RefreshLobbyList() => _networkManager.SearchValidLobby();
 }

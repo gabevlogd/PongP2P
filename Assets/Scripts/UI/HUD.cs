@@ -9,92 +9,120 @@ using System;
 
 public class HUD : MonoBehaviour
 {
-    [SerializeField] private TextMeshProUGUI _score;
-    [SerializeField] private TextMeshProUGUI _opponentScore;
-    [SerializeField] private TextMeshProUGUI _status;
-    [SerializeField] private TextMeshProUGUI _opponentStatus;
+    // Left is HOST
+    // Right is CLIENT
+    [SerializeField] private TextMeshProUGUI _leftScore;
+    [SerializeField] private TextMeshProUGUI _rightScore;
+    [SerializeField] private TextMeshProUGUI _leftStatus;
+    [SerializeField] private TextMeshProUGUI _rightStatus;
+    [SerializeField] private TextMeshProUGUI _countdown;
     [SerializeField] private Button _readyButton;
 
     private PongNetworkManager _networkManager;
     private GameManager _gameManager;
 
+    private PongPlayer _localPlayer;
+
     private void Awake()
     {
         _networkManager = (PongNetworkManager)NetworkManager.singleton;
         _gameManager = GameManager.Singleton;
+        _localPlayer = NetworkClient.connection.identity.GetComponent<PongPlayer>();
     }
 
     private void OnEnable()
     {
-        _score.gameObject.SetActive(false);
-        _score.text = "0";
-        _opponentScore.gameObject.SetActive(false);
-        _opponentScore.text = "0";
-
-        _status.gameObject.SetActive(true);
-        _status.text = "Not ready";
-
-        _opponentStatus.gameObject.SetActive(true);
-        _opponentStatus.text = "Not ready";
-
-        _readyButton.gameObject.SetActive(true);
-        _readyButton.onClick.AddListener(ReadyButtonClick);
-
+        InitializeHUDElements();
         PongPlayer.OnUpdateOpponentPlayerReady += UpdateOpponentStatus;
-        PongPlayer.OnStartingGame += StartingGame;
-
-        StartCoroutine(SetHUDElementPositions());
+        PongPlayer.OnStartingGame += OnStartingGame;
+        ScoreManager.OnScoreUpdated += UpdateScore;
     }
     private void OnDisable()
     {
         _readyButton.onClick.RemoveListener(ReadyButtonClick);
         PongPlayer.OnUpdateOpponentPlayerReady -= UpdateOpponentStatus;
-        PongPlayer.OnStartingGame -= StartingGame;
+        PongPlayer.OnStartingGame -= OnStartingGame;
+        ScoreManager.OnScoreUpdated -= UpdateScore;
     }
 
 
     private void ReadyButtonClick()
     {
-        PongPlayer localPlayer = GetLocalPlayer();
-        _status.text = "Ready";
+        if (NetworkServer.active)
+            _leftStatus.text = "Ready";
+        else _rightStatus.text = "Ready";
+
         _readyButton.gameObject.SetActive(false);
-        localPlayer.CmdSetPlayerReady(localPlayer);
+        //Notify the server that this local player is ready to start with a Command 
+        _localPlayer.CmdSetPlayerReady(_localPlayer);
     }
 
-    private void UpdateOpponentStatus() => _opponentStatus.text = "Ready";
-
-    private void StartingGame()
+    private void UpdateOpponentStatus()
     {
-        _status.gameObject.SetActive(false);
-        _opponentStatus.gameObject.SetActive(false);
-
-        _score.gameObject.SetActive(true);
-        _opponentScore.gameObject.SetActive(true);
-
+        if (NetworkServer.active)
+            _rightStatus.text = "Ready";
+        else _leftStatus.text = "Ready";
     }
 
-    private PongPlayer GetLocalPlayer() => NetworkClient.connection.identity.GetComponent<PongPlayer>();
-
-
-    private IEnumerator SetHUDElementPositions()
+    private void OnStartingGame()
     {
-        yield return new WaitForSeconds(1f);
+        _leftStatus.gameObject.SetActive(false);
+        _rightStatus.gameObject.SetActive(false);
 
-        if (GetLocalPlayer().isClientOnly)
+        _leftScore.gameObject.SetActive(true);
+        _rightScore.gameObject.SetActive(true);
+
+        StartCoroutine(Countdown(3f));
+    }
+
+    private void InitializeHUDElements()
+    {
+        _leftScore.gameObject.SetActive(false);
+        _leftScore.text = "0";
+        _rightScore.gameObject.SetActive(false);
+        _rightScore.text = "0";
+
+        _leftStatus.gameObject.SetActive(true);
+        _leftStatus.text = "Not ready";
+
+        _rightStatus.gameObject.SetActive(true);
+        _rightStatus.text = "Not ready";
+
+        _countdown.gameObject.SetActive(false);
+        _countdown.text = "0";
+
+        _readyButton.gameObject.SetActive(true);
+        _readyButton.onClick.AddListener(ReadyButtonClick);
+    }
+
+    private IEnumerator Countdown(float duration)
+    {
+        float startTime = Time.time;
+        float elapsedTime = 0f;
+        _countdown.gameObject.SetActive(true);
+        while (elapsedTime < duration)
         {
-            Debug.LogWarning("CLIENT");
-            _status.rectTransform.rect.Set(300f, 0f, 200f, 50f);
-            _score.rectTransform.rect.Set(300f, 470f, 200f, 50f);
-            _opponentStatus.rectTransform.rect.Set(-300f, 0f, 200f, 50f);
-            _opponentScore.rectTransform.rect.Set(-300f, 470f, 200f, 50f);
+            elapsedTime = Time.time - startTime;
+            _countdown.text = ((int)duration - (int)elapsedTime).ToString();
+            yield return null;
+        }
+        _countdown.gameObject.SetActive(false);
+        _networkManager.SpawnBall();
+    }
+
+    private void UpdateScore(GameFieldSide gameFieldSide)
+    {
+        if (gameFieldSide == GameFieldSide.left)
+        {
+            int score = int.Parse(_rightScore.text);
+            score++;
+            _rightScore.text = score.ToString();
         }
         else
         {
-            Debug.LogWarning("HOST");
-            _status.rectTransform.rect.Set(-300f, 0f, 200f, 50f);
-            _score.rectTransform.rect.Set(-300f, 470f, 200f, 50f);
-            _opponentStatus.rectTransform.rect.Set(300f, 0f, 200f, 50f);
-            _opponentScore.rectTransform.rect.Set(300f, 470f, 200f, 50f);
+            int score = int.Parse(_leftScore.text);
+            score++;
+            _leftScore.text = score.ToString();
         }
     }
 

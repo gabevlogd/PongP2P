@@ -32,14 +32,14 @@ public class PlayerMovement : NetworkBehaviour
 
     private void OnStartMove(InputAction.CallbackContext callbackContext)
     {
-        if (!isLocalPlayer) return;
+        if (!isOwned) return;
         Vector2 moveVec = _input.Movement.Move.ReadValue<Vector2>() * _speed * Time.fixedDeltaTime;
         _rigidbody.velocity = moveVec;
     }
 
     private void OnCancelMove(InputAction.CallbackContext callbackContext)
     {
-        if (!isLocalPlayer) return;
+        if (!isOwned) return;
         _rigidbody.velocity = Vector2.zero;
     }
 }

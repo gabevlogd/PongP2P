@@ -16,6 +16,7 @@ public class PongPlayer : NetworkBehaviour
     public static event Action OnUpdatePlayerInfo;
     public static event Action OnUpdateOpponentPlayerReady;
     public static event Action OnStartingGame;
+    public static event Action<GameFieldSide> OnPointScored;
 
     private void Awake()
     {
@@ -29,8 +30,9 @@ public class PongPlayer : NetworkBehaviour
         {
             _playerName = SteamFriends.GetPersonaName();
             _playerSteamID = SteamUser.GetSteamID();
+            //TO DO: Rivedi questo punto...
             //CmdUpdatePlayerInfo(); //cosi a volte non funziona probabilmente per motivi di connessione 
-            Invoke("CmdUpdatePlayerInfo", 2f); //dare tempo alle SyncVar di sincornizzarsi su tutti (con gli hook non mi stava funzionando lo stesso non so cosa ho sbagliato)
+            Invoke("CmdUpdatePlayerInfo", 2f); //dare tempo alle SyncVar di sincornizzarsi su tutti (con gli hook non mi stava funzionando lo stesso, non so cosa ho sbagliato, riprovare)
         }
         if (!isClientOnly) return;
         _networkManager.ConnectedPlayers.Add(this);
@@ -61,4 +63,8 @@ public class PongPlayer : NetworkBehaviour
 
     [TargetRpc]
     public void RpcUpdateOpponentPlayerReady(NetworkConnectionToClient target) => OnUpdateOpponentPlayerReady?.Invoke();
+
+    [ClientRpc]
+    public void RpcScorePoint(GameFieldSide gameFieldSide) => OnPointScored?.Invoke(gameFieldSide);
+
 }

@@ -56,7 +56,7 @@ public class PongNetworkManager : NetworkManager
         StartHost();
     }
 
-    public void SearchLobbyList()
+    public void SearchValidLobby()
     {
         List<LobbyData> lobbies = new List<LobbyData>();
         for (int i = 0; i < SteamFriends.GetFriendCount(EFriendFlags.k_EFriendFlagImmediate); i++)
@@ -84,9 +84,10 @@ public class PongNetworkManager : NetworkManager
         ServerChangeScene("gameplay");
     }
 
-
+    [Server]
     public void StartGame()
     {
+        //spawn player rackets
         Vector3 spawnPosition = _leftSpawn;
         foreach (PongPlayer player in ConnectedPlayers)
         {
@@ -94,7 +95,15 @@ public class PongNetworkManager : NetworkManager
             NetworkServer.Spawn(playerRacket, player.connectionToClient);
             spawnPosition = _rightSpawn;
         }
+
         NetworkClient.localPlayer.GetComponent<PongPlayer>().RpcStartingGame();
+    }
+
+    [Server]
+    public void SpawnBall()
+    {
+        GameObject ball = GameObject.Instantiate(spawnPrefabs[1]);
+        NetworkServer.Spawn(ball);
     }
 
 }

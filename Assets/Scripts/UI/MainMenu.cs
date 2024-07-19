@@ -40,7 +40,7 @@ public class MainMenu : MonoBehaviour
     private void JoinButtonClick()
     {
         _menuManager.OpenLobbiesListMenu();
-        _networkManager.SearchLobbyList();
+        _networkManager.SearchValidLobby();
     }
 
 }

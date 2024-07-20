@@ -31,6 +31,7 @@ public class FriendLobbySlot : MonoBehaviour
 
     private void JoinButtonClick()
     {
+        LobbyManager.CurrentLobbyID = _data.LobbySteamID;
         SteamMatchmaking.JoinLobby(_data.LobbySteamID);
         _menuManager.OpenMatchmakingMenu();
     }

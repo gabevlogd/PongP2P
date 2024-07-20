@@ -17,6 +17,7 @@ public class PongPlayer : NetworkBehaviour
     public static event Action OnUpdateOpponentPlayerReady;
     public static event Action OnStartingGame;
     public static event Action<GameFieldSide> OnPointScored;
+    public static event Action OnGameOver;
 
     private void Awake()
     {
@@ -66,5 +67,11 @@ public class PongPlayer : NetworkBehaviour
 
     [ClientRpc]
     public void RpcScorePoint(GameFieldSide gameFieldSide) => OnPointScored?.Invoke(gameFieldSide);
+
+    [ClientRpc]
+    public void RpcGameOver() => OnGameOver?.Invoke();
+    
+    [Command]
+    public void CmdSetPlayerReadyForNewGame() => GameManager.Singleton.SetPlayerReadyForNewGame();
 
 }

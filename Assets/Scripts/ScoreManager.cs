@@ -10,6 +10,7 @@ public class ScoreManager : MonoBehaviour
     // right is CLIENT
     private int _leftScore;
     private int _rightScore;
+    [SerializeField] private int _winConditionScore = 10;
 
     private PongPlayer _localPlayer;
     public static event Action<GameFieldSide> OnScoreUpdated;
@@ -32,13 +33,16 @@ public class ScoreManager : MonoBehaviour
     private void UpdateScore(GameFieldSide gameFieldSide)
     {
         if (gameFieldSide == GameFieldSide.left)
-        {
             _rightScore++;
-        }
-        else
-        {
-            _leftScore++;
-        }
+        else _leftScore++;
         OnScoreUpdated?.Invoke(gameFieldSide);
+        CheckWinCondition();
+    }
+
+    [Server]
+    private void CheckWinCondition()
+    {
+        if (_rightScore == _winConditionScore || _leftScore == _winConditionScore)
+            GameManager.Singleton.ChangeGameState(GameManager.Singleton.OnGameOver);
     }
 }

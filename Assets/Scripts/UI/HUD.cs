@@ -16,7 +16,9 @@ public class HUD : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _leftStatus;
     [SerializeField] private TextMeshProUGUI _rightStatus;
     [SerializeField] private TextMeshProUGUI _countdown;
+    [SerializeField] private TextMeshProUGUI _gameOver;
     [SerializeField] private Button _readyButton;
+    [SerializeField] private Button _newGameButton;
 
     private PongNetworkManager _networkManager;
     private GameManager _gameManager;
@@ -35,13 +37,14 @@ public class HUD : MonoBehaviour
         InitializeHUDElements();
         PongPlayer.OnUpdateOpponentPlayerReady += UpdateOpponentStatus;
         PongPlayer.OnStartingGame += OnStartingGame;
+        PongPlayer.OnGameOver += OnGameOver;
         ScoreManager.OnScoreUpdated += UpdateScore;
     }
     private void OnDisable()
     {
-        _readyButton.onClick.RemoveListener(ReadyButtonClick);
         PongPlayer.OnUpdateOpponentPlayerReady -= UpdateOpponentStatus;
         PongPlayer.OnStartingGame -= OnStartingGame;
+        PongPlayer.OnGameOver -= OnGameOver;
         ScoreManager.OnScoreUpdated -= UpdateScore;
     }
 
@@ -55,6 +58,12 @@ public class HUD : MonoBehaviour
         _readyButton.gameObject.SetActive(false);
         //Notify the server that this local player is ready to start with a Command 
         _localPlayer.CmdSetPlayerReady(_localPlayer);
+    }
+
+    private void NewGameButtonClick()
+    {
+        _newGameButton.gameObject.SetActive(false);
+        _localPlayer.CmdSetPlayerReadyForNewGame();
     }
 
     private void UpdateOpponentStatus()
@@ -91,6 +100,11 @@ public class HUD : MonoBehaviour
         _countdown.gameObject.SetActive(false);
         _countdown.text = "0";
 
+        _gameOver.gameObject.SetActive(false);
+
+        _newGameButton.gameObject.SetActive(false);
+        _newGameButton.onClick.AddListener(NewGameButtonClick);
+
         _readyButton.gameObject.SetActive(true);
         _readyButton.onClick.AddListener(ReadyButtonClick);
     }
@@ -124,6 +138,20 @@ public class HUD : MonoBehaviour
             score++;
             _leftScore.text = score.ToString();
         }
+    }
+
+    private void OnGameOver()
+    {
+        if (int.Parse(_rightScore.text) > int.Parse(_leftScore.text))
+        {
+            if (_localPlayer.isClientOnly) _gameOver.text = "You Win";
+            else _gameOver.text = "You Lose";
+        }
+        else if (_localPlayer.isClientOnly) _gameOver.text = "You Lose";
+        else _gameOver.text = "You Win";
+
+        _gameOver.gameObject.SetActive(true);
+        _newGameButton.gameObject.SetActive(true);
     }
 
 }

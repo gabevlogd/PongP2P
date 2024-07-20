@@ -11,6 +11,8 @@ public class LobbyManager : MonoBehaviour
 
     private const string _hostAddressKey = "HostAddress";
 
+    public static CSteamID CurrentLobbyID;
+
     private Callback<LobbyCreated_t> _lobbyCreated;
     private Callback<LobbyEnter_t> _gameLobbyEnter;
     private Callback<GameLobbyJoinRequested_t> _gameLobbyJoinRequested;

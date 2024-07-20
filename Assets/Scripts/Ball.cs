@@ -25,6 +25,16 @@ public class Ball : NetworkBehaviour
         _networkTransform = GetComponent<NetworkTransformUnreliable>();
     }
 
+    private void OnEnable()
+    {
+        PongPlayer.OnGameOver += DestroyBall;
+    }
+
+    private void OnDisable()
+    {
+        PongPlayer.OnGameOver -= DestroyBall;
+    }
+
     public override void OnStartServer()
     {
         _rigidbody.simulated = true;
@@ -42,7 +52,7 @@ public class Ball : NetworkBehaviour
     void OnCollisionEnter2D(Collision2D col)
     {
         //Debug.Log("OnCollisionEnter2D");
-        if (col.transform.TryGetComponent(out PlayerMovement playerRacket))
+        if (col.transform.TryGetComponent(out PlayerRacketMovement playerRacket))
         {
             //Debug.Log("Player Hitted");
             float y = HitFactor(transform.position,
@@ -70,11 +80,15 @@ public class Ball : NetworkBehaviour
 
     private void ResetBall()
     {
-        transform.position *= new Vector2(0f, 1f);
+        _networkTransform.RpcTeleport(new Vector3(0f, transform.position.y, 0f));
+        //transform.position *= new Vector2(0f, 1f);
         _speedMultiplier = 1f;
         //_rigidbody.velocity = GetStartRandomDirection() * _speed;
         _rigidbody.velocity = Vector2.Reflect(_rigidbody.velocity, Vector2.up).normalized * _speed;
     }
+
+    [Server]
+    private void DestroyBall() => NetworkServer.Destroy(gameObject);
 
     private Vector2 GetStartRandomDirection()
     {

@@ -74,7 +74,22 @@ public class GameManager : NetworkBehaviour
         
         //if all player are ready go to OnGame state
         if (_playerReadyCount == 2)
+        {
+            _playerReadyCount = 0;
             ChangeGameState(OnGame);
+        }
     }
+
+    public void SetPlayerReadyForNewGame()
+    {
+        _playerReadyCount++;
+        if (_playerReadyCount == 2)
+        {
+            _playerReadyCount = 0;
+            NetworkManager.OpenGameplayScene();
+        }
+    }
+
+
 
 }

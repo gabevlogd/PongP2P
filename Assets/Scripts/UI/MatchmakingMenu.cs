@@ -37,10 +37,13 @@ public class MatchmakingMenu : MonoBehaviour
 
     private void LeaveMatchmaking()
     {
+        SteamMatchmaking.LeaveLobby(LobbyManager.CurrentLobbyID);
+        LobbyManager.CurrentLobbyID = default;
         if (NetworkServer.active && NetworkClient.isConnected)
             _networkManager.StopHost();
         else _networkManager.StopClient();
         _menuManager.OpenMainMenu();
+
     }
 
     private void UpdateMatchmakingStatus()
@@ -67,6 +70,8 @@ public class MatchmakingMenu : MonoBehaviour
             Debug.Log("starting game...");
             yield return null;
         }
+        SteamMatchmaking.LeaveLobby(LobbyManager.CurrentLobbyID);
+        LobbyManager.CurrentLobbyID = default;
         _networkManager.OpenGameplayScene();
     }
 }

@@ -6,7 +6,7 @@ using Mirror;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody2D))]
-public class PlayerMovement : NetworkBehaviour
+public class PlayerRacketMovement : NetworkBehaviour
 {
     [SerializeField] private float _speed = 500f;
     private Rigidbody2D _rigidbody;
